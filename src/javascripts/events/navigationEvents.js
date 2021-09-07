@@ -5,24 +5,24 @@ import { booksOnSale, getBooks } from '../helpers/data/bookData';
 import { showAuthors } from '../components/authors';
 
 // navigation events
-const navigationEvents = () => {
+const navigationEvents = (uid) => {
   // LOGOUT BUTTON
   document.querySelector('#logout-button')
     .addEventListener('click', signOut);
 
   // BOOKS ON SALE
   document.querySelector('#sale-books').addEventListener('click', () => {
-    booksOnSale().then(showBooks);
+    booksOnSale(uid).then(showBooks);
   });
   // Favorite Auth
   document.querySelector('#favorite-authors').addEventListener('click', () => {
     console.warn('favorite Auth');
-    favAuth().then(showAuthors);
+    favAuth(uid).then(showAuthors);
   });
 
   // ALL BOOKS
   document.querySelector('#all-books').addEventListener('click', () => {
-    getBooks().then(showBooks);
+    getBooks(uid).then(showBooks);
   });
 
   // SEARCH
@@ -41,7 +41,7 @@ const navigationEvents = () => {
   });
 
   document.querySelector('#authors').addEventListener('click', () => {
-    getAuthors().then(showAuthors);
+    getAuthors(uid).then(showAuthors);
   });
   // FIXME: STUDENTS Create an event listener for the Authors
   // 1. When a user clicks the authors link, make a call to firebase to get all authors

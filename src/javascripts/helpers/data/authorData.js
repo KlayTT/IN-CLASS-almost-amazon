@@ -4,17 +4,17 @@ import firebaseConfig from '../../../api/apiKeys';
 
 const dbUrl = firebaseConfig.databaseURL;
 // GET AUTHORS
-const getAuthors = () => new Promise((resolve, reject) => {
-  axios.get(`${dbUrl}/Authors.json`)
+const getAuthors = (userId) => new Promise((resolve, reject) => {
+  axios.get(`${dbUrl}/Authors.json?orderBy="uid"&equalTo="${userId}"`)
     .then((response) => resolve(Object.values(response.data)))
     .catch((error) => reject(error));
 });
 
 // DELETE AUTHOR
-const deleteAuth = (firebaseKey) => new Promise((resolve, reject) => {
+const deleteAuth = (firebaseKey, uid) => new Promise((resolve, reject) => {
   axios.delete(`${dbUrl}/Authors/${firebaseKey}.json`)
     .then(() => {
-      getAuthors().then(resolve);
+      getAuthors(uid).then(resolve);
     })
     .catch(reject);
 });
@@ -25,17 +25,24 @@ const createAuth = (authObj) => new Promise((resolve, reject) => {
       const body = { firebaseKey: response.data.name };
       axios.patch(`${dbUrl}/Authors/${response.data.name}.json`, body)
         .then(() => {
-          getAuthors().then(resolve);
+          getAuthors(authObj.uid).then(resolve);
         });
     }).catch((error) => reject(error));
 });
 // UPDATE AUTHOR
-const updateAuth = (authObj) => new Promise((resolve, reject) => {
+const updateAuth = (authObj, uid) => new Promise((resolve, reject) => {
   axios.patch(`${dbUrl}/Authors/${authObj.firebaseKey}.json`, authObj)
-    .then(() => getAuthors().then(resolve))
+    .then(() => getAuthors(uid).then(resolve))
     .catch(reject);
 });
 // SEARCH AUTHORS
+
+// GET AUTH BOOKS
+const getAuthBooks = (authorId) => new Promise((resolve, reject) => {
+  axios.get(`${dbUrl}/Books.json?orderBy="author_id"&equalTo="${authorId}"`)
+    .then((response) => resolve(Object.values(response.data)))
+    .catch((reject));
+});
 // GET SINGLE AUTH
 const getOneAuth = (firebaseKey) => new Promise((resolve, reject) => {
   axios.get(`${dbUrl}/Authors/${firebaseKey}.json`)
@@ -43,10 +50,12 @@ const getOneAuth = (firebaseKey) => new Promise((resolve, reject) => {
     .catch(reject);
 });
 // FILTER AUTHORS
-const favAuth = () => new Promise((resolve, reject) => {
-  axios.get(`${dbUrl}/Authors.json?orderBy="favorite"&equalTo=true`)
-    .then((response) => resolve(Object.values(response.data)))
-    .catch((error) => reject(error));
+const favAuth = (userId) => new Promise((resolve, reject) => {
+  getAuthors(userId)
+    .then((userAuthArray) => {
+      const trueFavAuth = userAuthArray.filter((auth) => auth.favorite);
+      resolve(trueFavAuth);
+    }).catch(reject);
 });
 
 export {
@@ -55,5 +64,6 @@ export {
   deleteAuth,
   favAuth,
   getOneAuth,
-  updateAuth
+  updateAuth,
+  getAuthBooks
 };
